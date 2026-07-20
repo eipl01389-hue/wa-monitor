@@ -34,4 +34,361 @@
         .pair-card {
             background: linear-gradient(135deg, #1a1a3e, #1e1040);
             border-radius: 20px; padding: 24px; margin-bottom: 16px;
-            border: 1px solid #3a2a                    
+            border: 1px solid #3a2a7e; text-align: center;
+        }
+        .pair-card .icon { font-size: 48px; margin-bottom: 12px; }
+        .pair-card h2 { font-size: 18px; color: #fff; margin-bottom: 6px; }
+        .pair-card p { font-size: 13px; color: #8080a0; margin-bottom: 16px; line-height: 1.5; }
+        .pair-card .code-input-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .pair-card .code-input-group input { flex:1; padding:14px; background:#0f0f23; border:1px solid #3a2a7e; border-radius:12px; color:#fff; font-size:16px; text-align:center; outline:none; }
+        .pair-card .code-input-group input:focus { border-color:#8b5cf6; }
+        .pair-card .pair-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        }
+        .pair-card .pair-btn:active { transform: scale(0.98); }
+        .pair-card .pair-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Code Display */
+        .code-display {
+            background: #0f0f23; border-radius: 14px; padding: 20px; margin-top: 12px;
+            border: 2px dashed #6366f1; display: none;
+        }
+        .code-display.show { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .code-display .code-label { font-size: 12px; color: #8080a0; margin-bottom: 8px; }
+        .code-display .code-text {
+            font-size: 32px; font-weight: 800; letter-spacing: 6px;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            padding: 8px 0; font-family: 'Courier New', monospace;
+        }
+        .code-display .code-steps { 
+            margin-top: 12px; text-align: left; font-size: 13px; color: #a0a0c0;
+            background: #1a1a3e; border-radius: 10px; padding: 14px;
+        }
+        .code-display .code-steps li { margin-bottom: 6px; list-style: none; }
+        .code-display .code-steps li::before { content: '→ '; color: #6366f1; }
+        .code-display .code-steps .highlight { color: #22c55e; font-weight: 600; }
+        
+        /* Spinner */
+        .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid #3a2a7e; border-top: 3px solid #8b5cf6;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+            vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Connected Banner */
+        .connected-banner {
+            display: none;
+            background: linear-gradient(135deg, #065f46, #047857);
+            border-radius: 14px; padding: 16px; margin-bottom: 16px;
+            text-align: center; border: 1px solid #22c55e44;
+        }
+        .connected-banner.show { display: block; animation: fadeIn 0.5s ease; }
+        .connected-banner .check { font-size: 36px; }
+        .connected-banner h3 { color: #22c55e; font-size: 16px; margin-top: 4px; }
+        .connected-banner p { color: #86efac; font-size: 12px; margin-top: 4px; }
+        
+        /* Add contact */
+        .add-card {
+            background: #1a1a3e; border-radius: 16px; padding: 16px;
+            margin-bottom: 16px; border: 1px solid #2a2a5e;
+        }
+        .add-card h3 { font-size: 15px; margin-bottom: 12px; color: #c0c0e0; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { font-size: 12px; color: #8080a0; display: block; margin-bottom: 4px; }
+        .form-group input {
+            width: 100%; padding: 12px 14px; background: #0f0f23;
+            border: 1px solid #2a2a5e; border-radius: 10px; color: #fff;
+            font-size: 15px; outline: none; transition: border 0.2s;
+        }
+        .form-group input:focus { border-color: #6366f1; }
+        .form-group input::placeholder { color: #505070; }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-danger { background: #ef4444; color: #fff; padding: 8px 14px; font-size: 12px; border-radius: 8px; width: auto; }
+        
+        .contacts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .contacts-header h2 { font-size: 17px; color: #c0c0e0; }
+        .contacts-header .count { font-size: 12px; color: #606080; background: #1a1a3e; padding: 4px 10px; border-radius: 20px; }
+        
+        .contact-card {
+            background: #1a1a3e; border-radius: 14px; padding: 14px;
+            margin-bottom: 10px; border: 1px solid #2a2a5e; transition: all 0.2s;
+        }
+        .contact-card:active { transform: scale(0.99); }
+        .contact-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .contact-info { flex: 1; }
+        .contact-name { font-size: 16px; font-weight: 600; color: #fff; }
+        .contact-number { font-size: 12px; color: #606080; margin-top: 2px; }
+        .contact-status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 6px;
+        }
+        .contact-status-badge.online { background: #065f4622; color: #22c55e; border: 1px solid #22c55e44; }
+        .contact-status-badge.offline { background: #7f1d1d22; color: #f87171; border: 1px solid #ef444444; }
+        .contact-status-badge.unknown { background: #1a1a3e; color: #606080; border: 1px solid #2a2a5e; }
+        .contact-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .contact-actions .btn-sm { padding: 6px 12px; border: none; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; }
+        .btn-stats { background: #2a2a5e; color: #a0a0c0; }
+        .btn-delete { background: #450a0a; color: #f87171; }
+        .stats-row { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+        .stat-item { background: #0f0f23; border-radius: 8px; padding: 8px 12px; text-align: center; flex: 1; min-width: 60px; }
+        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+        .stat-label { font-size: 10px; color: #606080; margin-top: 2px; }
+        .history-panel { display: none; background: #0f0f23; border-radius: 10px; padding: 12px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
+        .history-panel.open { display: block; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #1a1a3e; font-size: 13px; }
+        .history-item:last-child { border-bottom: none; }
+        .history-status { display: flex; align-items: center; gap: 6px; }
+        .history-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .history-dot.online { background: #22c55e; }
+        .history-dot.offline { background: #ef4444; }
+        .history-time { color: #606080; font-size: 11px; }
+        .history-duration { color: #a0a0c0; font-size: 11px; }
+        
+        .fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            border: none; font-size: 28px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50;
+        }
+        .fab:active { transform: scale(0.9); }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f0f23; }
+        ::-webkit-scrollbar-thumb { background: #2a2a5e; border-radius: 4px; }
+        
+        .toast {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: #1a1a3e; color: #fff; padding: 12px 24px; border-radius: 12px;
+            border: 1px solid #2a2a5e; font-size: 14px; z-index: 300; display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); text-align: center; max-width: 90%;
+        }
+        .toast.show { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+        
+        .empty-state { text-align: center; padding: 40px 20px; color: #606080; }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📡 WhatsApp Presence Monitor</h1>
+        <div class="connection-status">
+            <span class="status-dot disconnected" id="statusDot"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <div class="container">
+        <!-- Connected Banner -->
+        <div class="connected-banner" id="connectedBanner">
+            <div class="check">✅</div>
+            <h3>WhatsApp Connected</h3>
+            <p>You can now add contacts and monitor presence</p>
+        </div>
+        
+        <!-- Pairing Card (shown when not connected) -->
+        <div class="pair-card" id="pairCard">
+            <div class="icon">🔗</div>
+            <h2>Connect Your WhatsApp</h2>
+            <p>Enter your phone number to get a pairing code.<br>Then enter the code in WhatsApp to link this app.</p>
+            
+            <div class="code-input-group">
+                <input type="tel" id="phoneInput" placeholder="Phone number with country code" inputmode="numeric">
+            </div>
+            
+            <button class="pair-btn" id="pairBtn" onclick="requestCode()">
+                📱 Get Pairing Code
+            </button>
+            
+            <div class="code-display" id="codeDisplay">
+                <div class="code-label">Your pairing code:</div>
+                <div class="code-text" id="codeText">XXXX-XXXX</div>
+                <div class="code-steps">
+                    <li>Open <strong>WhatsApp</strong> on your phone</li>
+                    <li>Go to <strong>Linked Devices</strong> → <strong>Link a Device</strong></li>
+                    <li>Tap <strong class="highlight">Link with phone number instead</strong></li>
+                    <li>Enter this code exactly as shown above</li>
+                    <li>Wait a few seconds for connection</li>
+                </div>
+            </div>
+            
+            <div id="pairLoading" style="display:none;margin-top:12px;">
+                <span class="spinner"></span> Generating code...
+            </div>
+            <div id="pairError" style="display:none;margin-top:12px;color:#f87171;font-size:13px;background:#450a0a;padding:10px;border-radius:10px;"></div>
+        </div>
+        
+        <!-- Contacts Section -->
+        <div class="contacts-header" id="contactsHeader">
+            <h2>👤 Tracked Contacts</h2>
+            <span class="count" id="contactCount">0</span>
+        </div>
+        
+        <div id="contactsList">
+            <div class="empty-state">
+                <div class="icon">📱</div>
+                <p>No contacts added yet.<br>Tap the + button to add one.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Contact Modal (Inline form) -->
+    <div style="display:none;" id="addForm">
+        <div class="add-card">
+            <h3>➕ Add Contact</h3>
+            <div class="form-group">
+                <label>Phone Number (with country code)</label>
+                <input type="tel" id="addPhoneInput" placeholder="e.g., 911234567890" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label>Name (optional)</label>
+                <input type="text" id="addNameInput" placeholder="e.g., John Doe">
+            </div>
+            <div style="display:flex;gap:10px;margin-top:12px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="submitAddContact()">Add</button>
+                <button style="flex:1;padding:14px;border:none;border-radius:10px;background:#2a2a5e;color:#a0a0c0;font-size:15px;font-weight:600;cursor:pointer;" onclick="hideAddForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAB -->
+    <button class="fab" id="fabBtn" onclick="showAddForm()">+</button>
+    
+    <script>
+        // ====== STATE ======
+        let contacts = [];
+        let isConnected = false;
+        let isGeneratingCode = false;
+        
+        // ====== TOAST ======
+        function showToast(msg, d=3000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), d);
+        }
+        
+        // ====== FORMAT ======
+        function formatDuration(s) {
+            if (!s || s === 0) return '<1s';
+            const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+            let p = [];
+            if (h) p.push(h+'h');
+            if (m) p.push(m+'m');
+            p.push(sec+'s');
+            return p.join(' ');
+        }
+        function formatTime(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        }
+        
+        // ====== ADD CONTACT FORM ======
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('fabBtn').style.display = 'none';
+            setTimeout(() => document.getElementById('addPhoneInput').focus(), 100);
+        }
+        function hideAddForm() {
+            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('fabBtn').style.display = 'flex';
+            document.getElementById('addPhoneInput').value = '';
+            document.getElementById('addNameInput').value = '';
+        }
+        async function submitAddContact() {
+            const phone = document.getElementById('addPhoneInput').value.trim();
+            const name = document.getElementById('addNameInput').value.trim();
+            if (!phone) { showToast('Enter a phone number'); return; }
+            const clean = phone.replace(/[\s\-\+\(\)]/g, '').replace(/^\+/, '');
+            if (clean.length < 7) { showToast('Invalid number'); return; }
+            try {
+                const r = await fetch('/api/contacts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone_number:clean, name:name||undefined}) });
+                const d = await r.json();
+                showToast(d.message);
+                hideAddForm();
+                fetchContacts();
+            } catch(e) { showToast('Failed to add'); }
+        }
+        
+        // ====== PAIRING CODE ======
+        async function requestCode() {
+            if (isGeneratingCode) return;
+            
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) { showToast('Enter your phone number first'); return; }
+            
+            const clean = phone.replace(/[\s\-\+\(\)]/g, '').replace(/^\+/, '');
+            if (clean.length < 7) { showToast('Enter a valid number with country code'); return; }
+            
+            const btn = document.getElementById('pairBtn');
+            const loading = document.getElementById('pairLoading');
+            const error = document.getElementById('pairError');
+            const codeDisplay = document.getElementById('codeDisplay');
+            
+            isGeneratingCode = true;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            codeDisplay.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/pair', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: clean })
+                });
+                const data = await res.json();
+                
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('codeText').textContent = data.code;
+                    codeDisplay.classList.add('show');
+                    btn.innerHTML = '🔄 Generate New Code';
+                    btn.disabled = false;
+                    showToast('Code generated! Enter it in WhatsApp');
+                    
+                    // Start checking if connection happened
+                    waitForConnection();
+                } else {
+                    error.textContent = data.message || 'Failed to generate code. Try again.';
+                    error.style.display = 'block';
+                    btn.innerHTML = '📱 Try Again';
+                    btn.disabled = false;
+                }
+            } catch(e) {
+                loading.style.display = 'none';
+                error.textContent = 'Network error. Check your connection.';
+                error.style.display = 'block';
+                btn.innerHTML = '📱 Try Again';
+                btn.disabled = false;
+            }
+            
+            isGeneratingCode = false;
+        }
+        
+        // ====== WAIT FOR CONNECTION ======
+        let connectionCheckInterval = null;
+        function waitForConnection() {
+            if (connectionCheckInterval) clearInterval(connectionCheckInterval);
+            
+            connectionCheckInterval = setInterval(async () => {
+                try {
+                    const r = await fetch('/api/sess
