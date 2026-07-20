@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WA Presence Monitor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23; color: #e0e0e0;
+            min-height: 100vh; padding-bottom: 80px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a3e, #2d1b69);
+            padding: 20px 16px; text-align: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .header h1 { font-size: 20px; font-weight: 700; color: #fff; }
+        .header .subtitle { font-size: 12px; color: #a0a0c0; margin-top: 4px; }
+        .connection-status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 13px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .status-dot.connected { background: #22c55e; box-shadow: 0 0 8px #22c55e88; animation: pulse 2s infinite; }
+        .status-dot.disconnected { background: #ef4444; }
+        .status-dot.connecting { background: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+        .add-card {
+            background: #1a1a3e; border-radius: 16px; padding: 16px;
+            margin-bottom: 16px; border: 1px solid #2a2a5e;
+        }
+        .add-card h3 { font-size: 15px; margin-bottom: 12px; color: #c0c0e0; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { font-size: 12px; color: #8080a0; display: block; margin-bottom: 4px; }
+        .form-group input {
+            width: 100%; padding: 12px 14px; background: #0f0f23;
+            border: 1px solid #2a2a5e; border-radius: 10px; color: #fff;
+            font-size: 15px; outline: none; transition: border 0.2s;
+        }
+        .form-group input:focus { border-color: #6366f1; }
+        .form-group input::placeholder { color: #505070; }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-danger { background: #ef4444; color: #fff; padding: 8px 14px; font-size: 12px; border-radius: 8px; width: auto; }
+        .btn-danger:active { transform: scale(0.95); }
+        .contacts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .contacts-header h2 { font-size: 17px; color: #c0c0e0; }
+        .contacts-header .count { font-size: 12px; color: #606080; background: #1a1a3e; padding: 4px 10px; border-radius: 20px; }
+        .contact-card {
+            background: #1a1a3e; border-radius: 14px; padding: 14px;
+            margin-bottom: 10px; border: 1px solid #2a2a5e; transition: all 0.2s;
+        }
+        .contact-card:active { transform: scale(0.99); }
+        .contact-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .contact-info { flex: 1; }
+        .contact-name { font-size: 16px; font-weight: 600; color: #fff; }
+        .contact-number { font-size: 12px; color: #606080; margin-top: 2px; }
+        .contact-status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 6px;
+        }
+        .contact-status-badge.online { background: #065f4622; color: #22c55e; border: 1px solid #22c55e44; }
+        .contact-status-badge.offline { background: #7f1d1d22; color: #f87171; border: 1px solid #ef444444; }
+        .contact-status-badge.unknown { background: #1a1a3e; color: #606080; border: 1px solid #2a2a5e; }
+        .contact-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .contact-actions .btn-sm { padding: 6px 12px; border: none; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; }
+        .btn-stats { background: #2a2a5e; color: #a0a0c0; }
+        .btn-delete { background: #450a0a; color: #f87171; }
+        .stats-row { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+        .stat-item { background: #0f0f23; border-radius: 8px; padding: 8px 12px; text-align: center; flex: 1; min-width: 60px; }
+        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+        .stat-label { font-size: 10px; color: #606080; margin-top: 2px; }
+        .history-panel { display: none; background: #0f0f23; border-radius: 10px; padding: 12px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
+        .history-panel.open { display: block; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #1a1a3e; font-size: 13px; }
+        .history-item:last-child { border-bottom: none; }
+        .history-status { display: flex; align-items: center; gap: 6px; }
+        .history-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .history-dot.online { background: #22c55e; }
+        .history-dot.offline { background: #ef4444; }
+        .history-time { color: #606080; font-size: 11px; }
+        .history-duration { color: #a0a0c0; font-size: 11px; }
+        .fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            border: none; font-size: 28px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.5);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; z-index: 50;
+        }
+        .fab:active { transform: scale(0.9); }
+        .modal-overlay { display: none; position: fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); z-index:200; justify-content:center; align-items:center; padding:20px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background:#1a1a3e; border-radius:20px; padding:24px; width:100%; max-width:400px; border:1px solid #2a2a5e; }
+        .modal h3 { font-size:18px; margin-bottom:16px; color:#fff; }
+        .modal .btn-row { display:flex; gap:10px; margin-top:16px; }
+        .modal .btn-row .btn { flex:1; }
+        .btn-secondary { background:#2a2a5e; color:#a0a0c0; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:#0f0f23; }
+        ::-webkit-scrollbar-thumb { background:#2a2a5e; border-radius:4px; }
+        .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#1a1a3e; color:#fff; padding:12px 24px; border-radius:12px; border:1px solid #2a2a5e; font-size:14px; z-index:300; display:none; box-shadow:0 4px 20px rgba(0,0,0,0.5); text-align:center; max-width:90%; }
+        .toast.show { display:block; animation:slideUp 0.3s ease; }
+        @keyframes slideUp { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+        .empty-state { text-align:center; padding:40px 20px; color:#606080; }
+        .empty-state .icon { font-size:48px; margin-bottom:12px; }
+        .empty-state p { font-size:14px; }
+        .qr-section { background:#1a1a3e; border-radius:16px; padding:20px; margin-bottom:16px; border:1px solid #2a2a5e; text-align:center; }
+        .qr-section .qr-placeholder { font-size:64px; margin-bottom:10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📡 WhatsApp Presence Monitor</h1>
+        <div class="connection-status">
+            <span class="status-dot disconnected" id="statusDot"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <div class="container">
+        <div class="qr-section" id="qrSection" style="display:none;">
+            <div class="qr-placeholder">📱</div>
+            <h3 style="color:#f59e0b;">WhatsApp Not Connected</h3>
+            <p style="font-size:13px;color:#8080a0;margin-top:6px;">
+                Open WhatsApp → Linked Devices → Link a Device<br>
+                Scan the QR code shown in the server logs
+            </p>
+        </div>
+        <div class="contacts-header">
+            <h2>👤 Tracked Contacts</h2>
+            <span class="count" id="contactCount">0</span>
+        </div>
+        <div id="contactsList">
+            <div class="empty-state">
+                <div class="icon">📱</div>
+                <p>No contacts added yet.<br>Tap the + button to add one.</p>
+            </div>
+        </div>
+    </div>
+    <button class="fab" onclick="openAddModal()">+</button>
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <h3>➕ Add Contact</h3>
+            <div class="form-group">
+                <label>Phone Number (with country code)</label>
+                <input type="tel" id="phoneInput" placeholder="e.g., 911234567890" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label>Name (optional)</label>
+                <input type="text" id="nameInput" placeholder="e.g., John Doe">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addContact()">Add</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let contacts = [];
+        function showToast(msg, d=2500) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), d);
+        }
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('open');
+            document.getElementById('phoneInput').focus();
+        }
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('open');
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('nameInput').value = '';
+        }
+        function formatDuration(s) {
+            if (!s || s === 0) return '<1s';
+            const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+            let p = [];
+            if (h) p.push(h+'h');
+            if (m) p.push(m+'m');
+            p.push(sec+'s');
+            return p.join(' ');
+        }
+        function formatTime(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        }
+        async function fetchContacts() {
+            try {
+                const r = await fetch('/api/contacts');
+                contacts = await r.json();
+                renderContacts();
+                document.getElementById('contactCount').textContent = contacts.length;
+            } catch(e) { console.error(e); }
+        }
+        async function fetchStatus() {
+            try {
+                const r = await fetch('/api/status');
+                const d = await r.json();
+                const dot = document.getElementById('statusDot');
+                const txt = document.getElementById('statusText');
+                const qr = document.getElementById('qrSection');
+                if (d.isReady) {
+                    dot.className = 'status-dot connected';
+                    txt.textContent = 'WhatsApp Connected ✓';
+                    qr.style.display = 'none';
+                } else {
+                    dot.className = 'status-dot disconnected';
+                    txt.textContent = 'Not Connected — Scan QR';
+                    qr.style.display = 'block';
+                }
+            } catch(e) {
+                document.getElementById('statusDot').className = 'status-dot disconnected';
+                document.getElementById('statusText').textContent = 'Server unreachable';
+            }
+        }
+        function renderContacts() {
+            const c = document.getElementById('contactsList');
+            if (contacts.length === 0) {
+                c.innerHTML = `<div class="empty-state"><div class="icon">📱</div><p>No contacts added yet.<br>Tap the + button to add one.</p></div>`;
+                return;
+            }
+            c.innerHTML = contacts.map(con => {
+                const isOnline = con.stats && con.stats.currentlyOnline;
+                const sClass = isOnline ? 'online' : (con.currentStatus === 'offline' ? 'offline' : 'unknown');
+                const sText = isOnline ? 'Online Now' : (con.currentStatus === 'offline' ? 'Offline' : 'Unknown');
+                const todayStr = con.stats ? formatDuration(con.stats.todayOnlineSeconds) : '—';
+                const totalStr = con.stats ? formatDuration(con.stats.totalOnlineSeconds) : '—';
+                const avgStr = con.stats ? formatDuration(con.stats.avgSessionSeconds) : '—';
+                return `<div class="contact-card" data-num="${con.phone_number}">
+                    <div class="contact-top">
+                        <div class="contact-info">
+                            <div class="contact-name">${con.name || 'Unknown'}</div>
+                            <div class="contact-number">${con.phone_number}</div>
+                            <div class="contact-status-badge ${sClass}">
+                                <span class="status-dot" style="width:8px;height:8px;${isOnline?'animation:pulse 2s infinite':''}"></span>
+                                ${sText}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn-sm btn-stats" onclick="toggleHistory('${con.phone_number}')">📋</button>
+                            <button class="btn-sm btn-delete" onclick="removeContact('${con.phone_number}')">✕</button>
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item"><div class="stat-value" style="color:${isOnline?'#22c55e':'#f87171'}">${todayStr}</div><div class="stat-label">Today</div></div>
+                        <div class="stat-item"><div class="stat-value">${totalStr}</div><div class="stat-label">Total</div></div>
+                        <div class="stat-item"><div class="stat-value">${avgStr}</div><div class="stat-label">Avg</div></div>
+                        <div class="stat-item"><div class="stat-value">${con.stats ? con.stats.totalSessions : 0}</div><div class="stat-label">Sessions</div></div>
+                    </div>
+                    <div class="history-panel" id="h-${con.phone_number}"><div style="text-align:center;padding:10px;color:#606080;font-size:13px;">Loading...</div></div>
+                </div>`;
+            }).join('');
+        }
+        async function toggleHistory(num) {
+            const p = document.getElementById(`h-${num}`);
+            p.classList.toggle('open');
+            if (p.classList.contains('open') && !p.querySelector('.history-item')) {
+                try {
+                    const r = await fetch(`/api/history/${num}`);
+                    const h = await r.json();
+                    if (h.length === 0) { p.innerHTML = '<div style="text-align:center;padding:10px;color:#606080;">No events yet</div>'; return; }
+                    p.innerHTML = h.slice(0,30).map(e => `<div class="history-item">
+                        <div class="history-status"><span class="history-dot ${e.status}"></span><span style="color:${e.status==='online'?'#22c55e':'#f87171'};font-weight:500;">${e.status==='online'?'Online':'Offline'}</span></div>
+                        <div class="history-time">${formatTime(e.timestamp)}</div>
+                        <div class="history-duration">${e.status==='online'&&e.duration_seconds>0?formatDuration(e.duration_seconds):'—'}</div>
+                    </div>`).join('');
+                } catch(e) { p.innerHTML = '<div style="text-align:center;padding:10px;color:#ef4444;">Failed to load</div>'; }
+            }
+        }
+        async function addContact() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const name = document.getElementById('nameInput').value.trim();
+            if (!phone) { showToast('Enter a phone number'); return; }
+            const clean = phone.replace(/[\s\-\+\(\)]/g, '').replace(/^\+/, '');
+            if (clean.length < 7) { showToast('Invalid number'); return; }
+            try {
+                const r = await fetch('/api/contacts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone_number:clean, name:name||undefined}) });
+                const d = await r.json();
+                showToast(d.message);
+                closeAddModal();
+                fetchContacts();
+            } catch(e) { showToast('Failed'); }
+        }
+        async function removeContact(num) {
+            if (!confirm('Remove this contact and history?')) return;
+            try { await fetch(`/api/contacts/${num}`, {method:'DELETE'}); showToast('Removed'); fetchContacts(); }
+            catch(e) { showToast('Failed'); }
+        }
+        document.getElementById('addModal').addEventListener('click', function(e) { if (e.target === this) closeAddModal(); });
+        document.getElementById('nameInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') addContact(); });
+        document.getElementById('phoneInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') document.getElementById('nameInput').focus(); });
+        async function init() {
+            await fetchStatus();
+            await fetchContacts();
+            setInterval(async () => { await fetchStatus(); await fetchContacts(); }, 5000);
+        }
+        init();
+    </script>
+</body>
+</html>
