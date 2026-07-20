@@ -1,0 +1,17 @@
+{
+  "name": "wa-presence-monitor",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.0",
+    "express": "^4.21.0",
+    "qrcode": "^1.5.4",
+    "better-sqlite3": "^11.0.0",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0"
+  }
+}
