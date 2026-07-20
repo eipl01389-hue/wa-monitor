@@ -12,6 +12,7 @@ let sock = null;
 let isReady = false;
 let presenceCallback = null;
 const subscribedContacts = new Set();
+let pairingCodeResolve = null;
 
 if (!fs.existsSync(SESSION_DIR)) {
     fs.mkdirSync(SESSION_DIR, { recursive: true });
@@ -35,13 +36,52 @@ export function subscribeToPresence(phoneNumber, name) {
     }
 }
 
+/**
+ * Generate a pairing code for a given phone number.
+ * The user enters this code in WhatsApp → Linked Devices → Link with Phone Number
+ */
+export async function requestPairingCode(phoneNumber) {
+    if (!sock) {
+        throw new Error('WhatsApp client not initialized');
+    }
+    
+    try {
+        // Clean the phone number
+        const cleanNumber = phoneNumber.replace(/[\s\-\+\(\)]/g, '').replace(/^\+/, '');
+        
+        console.log(`[WA] Requesting pairing code for: ${cleanNumber}`);
+        
+        // Request pairing code from WhatsApp
+        const code = await sock.requestPairingCode(cleanNumber);
+        
+        // Format nicely: XXXX-XXXX
+        const formattedCode = code.substring(0, 4) + '-' + code.substring(4, 8);
+        
+        console.log(`[WA] Pairing code: ${formattedCode}`);
+        
+        return {
+            success: true,
+            code: formattedCode,
+            rawCode: code,
+            message: `Pairing code generated. Open WhatsApp → Linked Devices → Link with Phone Number → Enter: ${formattedCode}`
+        };
+    } catch (error) {
+        console.error(`[WA] Pairing code error: ${error.message}`);
+        return {
+            success: false,
+            error: error.message,
+            message: `Failed to generate code: ${error.message}`
+        };
+    }
+}
+
 export async function startWAClient() {
     const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
 
     sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: true,
+        printQRInTerminal: false,  // Don't print QR since we use pairing code
         browser: ['WA Monitor', 'Chrome', '1.0.0'],
         syncFullHistory: false
     });
@@ -49,16 +89,11 @@ export async function startWAClient() {
     sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update;
-
-        if (qr) {
-            console.log('\n[WA] ===== SCAN QR CODE =====');
-            console.log('[WA] Open WhatsApp → Linked Devices → Link a Device\n');
-        }
+        const { connection, lastDisconnect } = update;
 
         if (connection === 'open') {
             isReady = true;
-            console.log('[WA] Connected!');
+            console.log('[WA] ✅ Connected successfully!');
             
             // Subscribe to existing contacts
             const contacts = getContacts();
@@ -79,7 +114,12 @@ export async function startWAClient() {
                 console.log('[WA] Reconnecting in 3s...');
                 setTimeout(() => startWAClient(), 3000);
             } else {
-                console.log('[WA] Logged out. Delete session and restart.');
+                console.log('[WA] Logged out. Session cleared.');
+                // Clean up session so user can re-link
+                try {
+                    fs.rmSync(SESSION_DIR, { recursive: true, force: true });
+                    fs.mkdirSync(SESSION_DIR, { recursive: true });
+                } catch(e) {}
             }
         }
     });
@@ -107,8 +147,14 @@ export async function startWAClient() {
 }
 
 export function getConnectionStatus() {
+    // Check if we have credentials (means previously authenticated)
+    const hasAuth = fs.existsSync(path.join(SESSION_DIR, 'creds.json'));
+    
     return {
         isReady,
-        subscribedCount: subscribedContacts.size
+        subscribedCount: subscribedContacts.size,
+        hasStoredSession: hasAuth,
+        // If we have stored session but not ready, we're connecting
+        status: isReady ? 'connected' : (hasAuth ? 'connecting' : 'disconnected')
     };
 }
